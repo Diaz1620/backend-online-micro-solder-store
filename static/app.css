@@ -1,0 +1,10 @@
+html, body{
+    height: 100vh;
+    background-color: #fafafa;
+}
+
+
+h1{
+    color: darkblue;
+    text-align: center;
+}

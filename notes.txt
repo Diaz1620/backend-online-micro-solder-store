@@ -1,0 +1,28 @@
+## Initial project configuration
+# Installations
+sudo apt update
+sudo apt install python3
+sudo apt install python3-pip
+sudo apt install python3-venv
+
+# initial configuration
+mkdir flask_api
+cd flask_api
+python3 -m venv venv
+
+
+
+# go to home folder
+cd ~ 
+
+# project
+cd flask_api
+
+
+# activate virtual env
+# MUST BE on the project folder
+source venv/bin/activate
+
+
+# kill the server
+Ctrl + C
