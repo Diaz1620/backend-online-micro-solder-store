@@ -1,6 +1,7 @@
 import json
 from flask import Flask, render_template, abort, request
 from flask_cors import CORS
+from pymongo import cursor
 from mock_data import mock_data
 from config import db
 
@@ -25,18 +26,18 @@ me = {
 def index():
     return render_template("index.html")
 
-@app.route("/about")
-def about():
-    return f"{me['name']} {me['last']}"
+# @app.route("/about")
+# def about():
+#     return f"{me['name']} {me['last']}"
 
 @app.route("/about/email")
 def get_email():
     return me["email"]
 
-@app.route("/about/address")
-def get_address():
-    addresss = me["address"]
-    return f"{addresss['number']} {addresss['street']}"
+# @app.route("/about/address")
+# def get_address():
+#     addresss = me["address"]
+#     return f"{addresss['number']} {addresss['street']}"
 
 # API Methods
 @app.route("/api/catalog", methods=["GET"])
@@ -58,46 +59,52 @@ def save_product():
     if not "title" in product or len(product["title"]) < 5:
         abort(400, "Title is required and should be at least 5 chars long")
 
-    mock_data.append(product)
-    product["_id"] = len(product["title"])
-    return json.dumps(product)
+    # save product into the DB
+    # MongoDB add a _id with a uniqe value
+    db.products.insert_one(product)
+    return parse_json(product)
 
 @app.route("/api/categories")
 def get_categories():
+    # return a list with the uniqe categories [string, string]
+
+    cursor = db.products.find({})
     categories = []
-    for cat in mock_data:
+    for cat in cursor:
         if cat['category'] not in categories:
             categories.append(cat['category'])
-    return json.dumps(categories)
+    return parse_json(categories)
 
 @app.route("/api/product/<id>")
 def get_by_id(id):
-    found = False
-    for prod in mock_data:
-        if prod["_id"] == id:
-            found = True
-            return json.dumps(prod)
-        if not found:
-            abort(404)
+    # find the product with such id
+    # return the product as json string
+
+    product = db.products.find_one({"_id": id})
+
+    if not product:
+        abort(404)
+
+    return parse_json(product)
 
 @app.route("/api/catalog/<cat>")
 def get_by_category(cat):
-    found = False
-    categories = []
-    for prod in mock_data:
-        if(prod['category'].lower() == cat.lower()):
-            found = True
-            categories.append(prod)
-    return json.dumps(categories)
+    # pymongo find case insensitive
+    cursor = db.products.find({"category": cat.lower()})
+    prods = []
+    for prod in cursor:
+        prods.append(prod)
+    return parse_json(prods)
 
 @app.route("/api/cheapest")
 def get_cheapest():
-    cheapest = mock_data[0]
-    for prod in mock_data:
+    cursor = db.products.find({})
+    cheapest = cursor[0]
+    for prod in cursor:
         if prod["price"] < cheapest["price"]:
             cheapest = prod
 
-    return json.dumps(cheapest)
+    return parse_json(cheapest)
 
 
 @app.route("/api/test/loadData")
@@ -112,7 +119,16 @@ def load_data():
 
 
 
+class JSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, ObjectId):
+            return str(o)
 
+        return json.JSONEncoder.default(self, o)
+
+
+def parse_json(data):
+    return JSONEncoder().encode(data)
 
 
 
