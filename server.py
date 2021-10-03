@@ -3,7 +3,7 @@ from flask import Flask, render_template, abort, request
 from flask_cors import CORS
 from pymongo import cursor
 from mock_data import mock_data
-from config import db
+from config import db, parse_json
 
 
 app = Flask(__name__)
@@ -48,7 +48,7 @@ def get_catalog():
     for prod in cursor:
         catalog.append(prod)
 
-    return json.dumps(catalog)
+    return parse_json(catalog)
 
 @app.route("/api/catalog", methods=["POST"])
 def save_product():
@@ -119,16 +119,16 @@ def load_data():
 
 
 
-class JSONEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, ObjectId):
-            return str(o)
+# class JSONEncoder(json.JSONEncoder):
+#     def default(self, o):
+#         if isinstance(o, ObjectId):
+#             return str(o)
 
-        return json.JSONEncoder.default(self, o)
+#         return json.JSONEncoder.default(self, o)
 
 
-def parse_json(data):
-    return JSONEncoder().encode(data)
+# def parse_json(data):
+#     return JSONEncoder().encode(data)
 
 
 

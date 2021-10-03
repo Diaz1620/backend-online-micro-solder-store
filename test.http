@@ -1,6 +1,19 @@
 GET http://127.0.0.1:5000/api/catalog HTTP/1.1
 
 ###
+POST http://127.0.0.1:5000/api/catalog HTTP/1.1
+Content-Type: application/json
+
+{
+    "title": "Testing Product",
+    "price": 10,
+    "cateory": "tools",
+    "image": "test.jpg",
+    "discount": 0,
+    "minimum": 1
+}
+
+###
 GET http://127.0.0.1:5000/api/categories HTTP/1.1
 
 ###
