@@ -24,3 +24,6 @@ GET http://127.0.0.1:5000/api/catalog/tools HTTP/1.1
 
 ###
 GET http://127.0.0.1:5000/api/cheapest HTTP/1.1
+
+###
+GET http://127.0.0.1:5000/api/couponCode HTTP/1.1

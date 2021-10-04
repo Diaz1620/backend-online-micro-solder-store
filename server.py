@@ -130,6 +130,26 @@ def load_data():
 # def parse_json(data):
 #     return JSONEncoder().encode(data)
 
+@app.route("/api/couponCode", methods=["POST"])
+def save_coupon():
+    coupon = request.get_json()
+    if not "code" in coupon:
+        abort(400, "Title is required")
+
+    if not "discount" in coupon or coupon["discount"] <= 0:
+        abort(400, "Discount is required and must be more than 0")
+    
+    db.couponCodes.insert_one(coupon)
+    return parse_json(coupon)
+
+
+@app.route("/api/couponCode")
+def get_coupon():
+    cursor = db.couponCodes.find({})
+    codes = []
+    for code in cursor:
+        codes.append(code)
+    return parse_json(codes)
 
 
 
