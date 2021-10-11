@@ -1,4 +1,5 @@
 import json
+from urllib import parse
 from flask import Flask, render_template, abort, request
 from flask_cors import CORS
 from pymongo import cursor
@@ -152,10 +153,20 @@ def get_coupon():
     return parse_json(codes)
 
 
+@app.route("/api/couponCode/<code>")
+def validate_coupon(code):
+    coupon = db.couponCodes.find_one({"code":code})
+    if not coupon:
+        abort(404, "Invalid Coupon Code")
+    return parse_json(coupon)
 
 
+@app.route("/api/orders", methods=["POST"])
+def save_order():
+    order = request.get_json()
+    db.orders.insert_one(order)
 
-
+    return parse_json(order)
 
 
 
